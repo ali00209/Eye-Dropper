@@ -1,0 +1,43 @@
+{
+  "manifest_version": 2,
+  "name": "Eye Dropper Pro+",
+  "version": "1.0",
+  "description": "A color picker extension with advanced features",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "96": "icons/icon96.png",
+    "128": "icons/icon128.png",
+    "256": "icons/icon256.png",
+    "512": "icons/icon512.png"
+  },
+  "permissions": [
+    "activeTab",
+    "<all_urls>",
+    "tabs",
+    "storage"
+  ],
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "96": "icons/icon96.png",
+      "128": "icons/icon128.png",
+      "256": "icons/icon256.png",
+      "512": "icons/icon512.png"
+    },
+    "default_title": "Eye Dropper Pro+",
+    "default_popup": "popup/popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content_scripts/eyedropper.js"]
+    }
+  ]
+}

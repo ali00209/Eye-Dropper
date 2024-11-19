@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eye Dropper Pro+</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="sr-only">Eye Dropper Pro+</h1>
+            <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="moon">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </header>
+
+        <main>
+            <div class="color-display" id="colorDisplay" aria-live="polite"></div>
+            
+            <div class="controls">
+                <button id="eyedropper" class="btn" title="Pick a color">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="currentColor" d="M19.35 11.72l-2.13 2.13-1.41-1.42-7.71 7.71L3.5 19.5l-.71.71L2.1 21l.7.7 1.41-.7.71-.71-.71-4.6 7.71-7.71-1.42-1.41 2.13-2.13c.39-.39 1.02-.39 1.41 0l5.3 5.3c.4.39.4 1.02.01 1.41zM4.59 19.5l.56 3.62 3.62.56-4.18-4.18z"/>
+                    </svg>
+                    Pick Color
+                </button>
+                <button id="zoomToggle" class="btn" title="Toggle zoom">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        <path fill="currentColor" d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"/>
+                    </svg>
+                    Zoom
+                </button>
+                <button id="copyColor" class="btn" title="Copy current color">
+                    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                    Copy
+                </button>
+            </div>
+
+            <div class="color-info">
+                <div class="color-format" data-format="hex" title="Click to copy HEX">
+                    HEX: <span id="hexValue">#000000</span>
+                </div>
+                <div class="color-format" data-format="rgb" title="Click to copy RGB">
+                    RGB: <span id="rgbValue">rgb(0, 0, 0)</span>
+                </div>
+                <div class="color-format" data-format="hsl" title="Click to copy HSL">
+                    HSL: <span id="hslValue">hsl(0, 0%, 0%)</span>
+                </div>
+            </div>
+
+            <section class="history">
+                <h2>History</h2>
+                <div class="history-colors" id="colorHistory"></div>
+            </section>
+
+        </main>
+    </div>
+    <div class="notification-container"></div>
+    <script src="../utils/colorUtils.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html>
