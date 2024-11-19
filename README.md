@@ -16,7 +16,7 @@
 
 ## 🚀 Installation
 
-1. Visit the [Extension Store Page](https://addons.mozilla.org/en-US/firefox/addon/eye-dropper-pro/)
+1. Install from [![Download from Firefox Add-ons](https://img.shields.io/badge/Firefox-Download-orange?logo=firefox)](https://addons.mozilla.org/en-US/firefox/addon/eye-dropper-pro/)
 2. Click "Add to Browser"
 3. Grant necessary permissions when prompted
 
