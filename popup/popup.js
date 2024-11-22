@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentColor = null;
   let colorHistoryList = [];
+  let isPickerActive = false;
   let isZoomEnabled = false;
 
   // Load saved state
@@ -30,51 +31,105 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // Check for saved theme preference
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  html.setAttribute('data-theme', savedTheme);
-  updateThemeIcon(savedTheme === 'dark');
-
-  // Toggle zoom
-  zoomToggle.addEventListener('click', () => {
-    isZoomEnabled = !isZoomEnabled;
-    updateZoomButton();
-    browser.storage.local.set({ zoomEnabled: isZoomEnabled });
-  });
-
+  // Initialize zoom state
   function updateZoomButton() {
-    if (isZoomEnabled) {
-      zoomToggle.classList.add('zoom-active');
-      zoomToggle.title = 'Zoom enabled';
-    } else {
-      zoomToggle.classList.remove('zoom-active');
-      zoomToggle.title = 'Zoom disabled';
-    }
+    zoomToggle.classList.toggle('active', isZoomEnabled);
+    zoomToggle.setAttribute('aria-pressed', isZoomEnabled);
   }
 
-  // Start eyedropper
-  eyedropperBtn.addEventListener('click', async () => {
-    // Get fresh active tab status each time
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-    const activeTab = tabs[0];
+  // Handle zoom toggle
+  zoomToggle.addEventListener('click', async () => {
+    isZoomEnabled = !isZoomEnabled;
+    updateZoomButton();
     
-    if (!activeTab || (!activeTab.url.startsWith('http://') && !activeTab.url.startsWith('https://'))) {
-      showNotification('Please open a webpage to use the color picker.', 'error');
-      return;
+    // Save state
+    await browser.storage.local.set({ zoomEnabled: isZoomEnabled });
+    
+    // If picker is active, update zoom state in content script
+    if (isPickerActive) {
+      try {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        if (tabs[0]) {
+          await browser.tabs.sendMessage(tabs[0].id, { 
+            action: 'toggleZoom',
+            enabled: isZoomEnabled
+          });
+        }
+      } catch (error) {
+        console.error('Failed to toggle zoom:', error);
+        // Revert state if failed
+        isZoomEnabled = !isZoomEnabled;
+        updateZoomButton();
+        showNotification('Failed to toggle zoom. Please try again.', 'error');
+      }
     }
+  });
 
+  // Check if picker is already active
+  browser.runtime.sendMessage({ action: 'getPickerState' }).then(response => {
+    isPickerActive = response.isActive;
+    updatePickerButton();
+  });
+
+  function updatePickerButton() {
+    eyedropperBtn.textContent = isPickerActive ? 'Stop Picking' : 'Pick Color';
+    eyedropperBtn.classList.toggle('picking-active', isPickerActive);
+    eyedropperBtn.setAttribute('aria-pressed', isPickerActive);
+  }
+
+  // Listen for picker state changes
+  browser.runtime.onMessage.addListener((message) => {
+    switch (message.action) {
+      case 'pickingStarted':
+        isPickerActive = true;
+        updatePickerButton();
+        break;
+      case 'pickingStopped':
+      case 'pickingCanceled':
+      case 'colorPicked':
+        isPickerActive = false;
+        updatePickerButton();
+        break;
+    }
+  });
+
+  // Get initial picker state
+  browser.runtime.sendMessage({ action: 'getPickerState' })
+    .then(response => {
+      isPickerActive = response.isActive;
+      updatePickerButton();
+    });
+
+  // Start/Stop eyedropper
+  eyedropperBtn.addEventListener('click', async () => {
     try {
-      // First send message to start picking
-      await browser.tabs.sendMessage(activeTab.id, { 
-        action: 'startPicking',
-        zoomEnabled: isZoomEnabled
-      });
-      await browser.runtime.sendMessage({ action: 'startPicking' });
-      
-      // Close the popup
-      window.close();
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+      const activeTab = tabs[0];
+
+      if (isPickerActive) {
+        // Stop picking
+        await browser.tabs.sendMessage(activeTab.id, { action: 'stopPicking' });
+        await browser.runtime.sendMessage({ action: 'stopPicking' });
+        isPickerActive = false;
+        updatePickerButton();
+      } else {
+        // Check if we can start picking
+        if (!activeTab || (!activeTab.url.startsWith('http://') && !activeTab.url.startsWith('https://'))) {
+          showNotification('Please open a webpage to use the color picker.', 'error');
+          return;
+        }
+
+        // Start picking
+        await browser.tabs.sendMessage(activeTab.id, { 
+          action: 'startPicking',
+          zoomEnabled: isZoomEnabled
+        });
+        await browser.runtime.sendMessage({ action: 'startPicking' });
+        window.close();
+      }
     } catch (error) {
-      showNotification('Failed to start color picker. Please refresh the page and try again.', 'error');
+      console.error('Failed to toggle picker:', error);
+      showNotification('Failed to toggle color picker. Please refresh the page and try again.', 'error');
     }
   });
 

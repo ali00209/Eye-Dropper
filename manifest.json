@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Eye Dropper Pro+",
-  "version": "1.0",
+  "version": "2.0",
   "description": "A color picker extension with advanced features",
   "icons": {
     "16": "icons/icon16.png",
